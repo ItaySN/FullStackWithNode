@@ -3,6 +3,8 @@ const express = require('express');
 const { res, json } = require('express');
 const { brotliDecompress } = require('zlib');
 
+const morgan = require('morgan')
+morgan.tiny();
 
 const app = express();
 app.use(express.json());
@@ -49,19 +51,45 @@ app.get('/info', (req,res) =>{
   }
 }) 
 
+app.delete('/api/persons/:id', (req,res) => {
+    const id = Number(req.params.id);
+    persons = persons.filter(person => person.id!==id);
 
     res.status(204).end();
 })
 
 
+const idGenreator = () => {
+    return Math.floor(Math.random()*(10000000 - 1000000) + 1000000);
 }
 
+app.post('/api/persons', (req, res) => {
+    const person = req.body;
 
+    if(!person.number){
+        return res.status(400).json({
+            error: 'no phone number submited'
+        });
     }
 
+    if(!person.name){
+        return res.status(400).json({
+            error: 'no name submited'
+        });
     }
 
+    if(persons.some(p => p.name == person.name)){
+        return res.status(400).json({
+            error: 'person already exist'
+        });
+    }
 
+    person.id = idGenreator();
+
+    persons = persons.concat(person);
+
+    res.json(person);
+});
 
 const PORT = 3001;
 app.listen(PORT);
