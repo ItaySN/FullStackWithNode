@@ -1,5 +1,5 @@
-const Person = require('./models/person.js');
 require('dotenv').config();
+const Person = require('./models/person.js');
 
 const express = require('express');
 const app = express();
