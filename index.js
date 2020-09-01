@@ -10,29 +10,51 @@ app.use(cors());
 
 const morgan = require('morgan');
 
-
 morgan.token('body', function (req, res) { 
   return JSON.stringify(req.body)
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let persons = [
-{
-    name:"Arto Hellas",
-    number: "040=123456",
-    id:1
-},
-{
-    name:"Dan Avramov",
-    number: "39-44-5323523",
-    id:2
-},
-{
-    name:"Mary Poppendieck",
-    number: "39-23-6423122",
-    id:3
-},
-];
+const mongoose = require('mongoose')
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+const url =
+ `mongodb+srv://itayFullS:gkXEHjPspPvlt29i@cluster0.0ak1s.mongodb.net/personDB?retryWrites=true&w=majority`;
+
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+});
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
+const Person = mongoose.model('person', personSchema);
+
+
+// let persons = [
+// {
+//     name:"Arto Hellas",
+//     number: "040=123456",
+//     id:1
+// },
+// {
+//     name:"Dan Avramov",
+//     number: "39-44-5323523",
+//     id:2
+// },
+// {
+//     name:"Mary Poppendieck",
+//     number: "39-23-6423122",
+//     id:3
+// },
+// ];
   
 
 app.get('/', (req,res) =>{
@@ -40,7 +62,9 @@ app.get('/', (req,res) =>{
 })
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons)
+  Person.find({}).then(persons => {
+    res.json(persons)
+  })
 })
 
 app.get('/info', (req,res) =>{
