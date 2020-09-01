@@ -1,5 +1,5 @@
 require('dotenv').config();
-const Person = require('./models/person.js');
+const Person = require('./models/person');
 
 const express = require('express');
 const app = express();
@@ -50,38 +50,22 @@ app.delete('/api/persons/:id', (req,res) => {
     res.status(204).end();
 })
 
-
-const idGenreator = () => {
-    return Math.floor(Math.random()*(10000000 - 1000000) + 1000000);
-}
-
-app.post('/api/persons', (req, res) => {
-    const person = req.body;
-
-    if(!person.number){
+app.post("/api/persons", (req, res) => {
+    if (!req.body.name || !req.body.number) {
         return res.status(400).json({
-            error: 'no phone number submited'
-        });
+            error: 'content missing'
+        })
     }
+    const contact = new Person({
+        name: req.body.name,
+        number: req.body.number,
+    })
+    contact.save().then(savedContact => {
+        res.json(savedContact)
+    })
 
-    if(!person.name){
-        return res.status(400).json({
-            error: 'no name submited'
-        });
-    }
+})
 
-    if(persons.some(p => p.name == person.name)){
-        return res.status(400).json({
-            error: 'person already exist'
-        });
-    }
-
-    person.id = idGenreator();
-
-    persons = persons.concat(person);
-
-    res.json(person);
-});
 
 const PORT = process.env.PORT;
 app.listen(PORT);
