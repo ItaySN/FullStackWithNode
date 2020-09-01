@@ -25,12 +25,10 @@ app.get('/api/persons', (req, res) => {
   })
 })
 
-app.get('/info', (req,res) =>{
-    if(persons.length === 0)
-    {
-        res.send(`<p> The phonebook is empty </p> <br> ${new Date()}`);
-    }
-    res.send(`Phonebook has info for ${persons.length} people <br> ${new Date()}`);
+app.get('/info', (request, response) => {
+    Person.find({}).then(people => {
+        response.send(`Phonebook has info for ${people.length} people<br><br>${new Date()}`)
+    })
 })
 
 app.get('/api/persons/:id', (req,res) => {
