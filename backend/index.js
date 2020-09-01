@@ -3,8 +3,14 @@ const express = require('express');
 const { res, json } = require('express');
 const { brotliDecompress } = require('zlib');
 
-const morgan = require('morgan')
-morgan.tiny();
+const morgan = require('morgan');
+
+
+morgan.token('body', function (req, res) { 
+  return JSON.stringify(req.body)
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 
 const app = express();
 app.use(express.json());
